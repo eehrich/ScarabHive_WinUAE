@@ -24,13 +24,11 @@ jobs:
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
 
-    - name: Download WinUAE includes, libs and AROS ROM cpp
+    - name: Download WinUAE includes and libs
       shell: powershell
       run: |
         Invoke-WebRequest -Uri "https://download.abime.net/winuae/files/b/winuaeinclibs.zip" -OutFile "winuaeinclibs.zip"
         Expand-Archive -Path "winuaeinclibs.zip" -DestinationPath "C:\dev" -Force
-        Invoke-WebRequest -Uri "https://download.abime.net/winuae/files/b/aros.rom.cpp.zip" -OutFile "aros.rom.cpp.zip"
-        Expand-Archive -Path "aros.rom.cpp.zip" -DestinationPath "." -Force
 
     - name: Add NASM to PATH
       uses: ilammy/setup-nasm@v1
