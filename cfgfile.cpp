@@ -2030,6 +2030,8 @@ void cfgfile_save_options (struct zfile *f, struct uae_prefs *p, int type)
 	cfgfile_write_bool (f, _T("use_debugger"), p->start_debugger);
 	cfgfile_write_multichoice(f, _T("debugging_features"), debugfeatures, p->debugging_features);
 	cfgfile_dwrite_str(f, _T("debugging_options"), p->debugging_options);
+	if (p->debugging_port > 0 && p->debugging_port != 2345)
+		cfgfile_dwrite(f, _T("debugging_port"), _T("%d"), p->debugging_port);
 
 	cfgfile_write_rom (f, &p->path_rom, p->romfile, _T("kickstart_rom_file"));
 	cfgfile_write_rom (f, &p->path_rom, p->romextfile, _T("kickstart_ext_rom_file"));
@@ -5728,6 +5730,8 @@ static int cfgfile_parse_hardware (struct uae_prefs *p, const TCHAR *option, TCH
 		return 1;
 	if (cfgfile_string(option, value, _T("debugging_trigger"), p->debugging_trigger, sizeof p->debugging_trigger / sizeof(TCHAR)))
 		return 1;
+	if (cfgfile_intval(option, value, _T("debugging_port"), &p->debugging_port, 1))
+		return 1;
 
 	if (cfgfile_yesno(option, value, _T("immediate_blits"), &p->immediate_blits)
 		|| cfgfile_yesno(option, value, _T("fpu_no_unimplemented"), &p->fpu_no_unimplemented)
@@ -8622,6 +8626,7 @@ static void buildin_default_prefs (struct uae_prefs *p)
 
 	p->debug_mem = false;
 	_tcscpy(p->debugging_trigger, _T(":runme.exe"));
+	p->debugging_port = 2345;
 
 	target_default_options (p, 1);
 	cfgfile_compatibility_romtype(p);

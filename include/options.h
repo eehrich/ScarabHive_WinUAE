@@ -514,6 +514,7 @@ struct uae_prefs {
 	int debugging_features;
 	TCHAR debugging_options[MAX_DPATH];
 	TCHAR debugging_trigger[MAX_DPATH];
+	int debugging_port;
 	bool start_gui;
 
 	KbdLang keyboard_lang;
