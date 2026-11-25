@@ -896,12 +896,12 @@ static WSADATA wsadata;
 static SOCKET serialsocket = INVALID_SOCKET;
 static SOCKET serialconn = INVALID_SOCKET;
 static PADDRINFOW socketinfo;
-static char socketaddr[sizeof SOCKADDR_INET];
+static char socketaddr[sizeof(SOCKADDR_INET)];
 static BOOL tcpserial;
 
 static bool tcp_is_connected (void)
 {
-	socklen_t sa_len = sizeof SOCKADDR_INET;
+	socklen_t sa_len = sizeof(SOCKADDR_INET);
 	if (serialsocket == INVALID_SOCKET)
 		return false;
 	if (serialconn == INVALID_SOCKET) {

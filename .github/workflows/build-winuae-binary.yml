@@ -35,8 +35,22 @@ jobs:
     - name: Add NASM to PATH
       uses: ilammy/setup-nasm@v1
 
+    - name: Run code generators (build68k, genlinetoscr, genblitter, gencpu, gencomp)
+      shell: powershell
+      run: |
+        foreach ($proj in @(
+          "od-win32\build68k_msvc\build68k_msvc.vcxproj",
+          "od-win32\genlinetoscr_msvc\genlinetoscr_msvc.vcxproj",
+          "od-win32\genblitter_msvc\genblitter_msvc.vcxproj",
+          "od-win32\gencpu_msvc\gencpu_msvc.vcxproj",
+          "od-win32\gencomp_msvc\gencomp_msvc.vcxproj"
+        )) {
+          msbuild /m /p:Platform=Win32 /p:Configuration=Release /p:PlatformToolset=v143 $proj
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        }
+
     - name: Build x64 FullRelease
-      run: msbuild /m /p:Platform=x64 /p:Configuration=FullRelease ${{ env.SOLUTION_FILE_PATH }}
+      run: msbuild /m /p:Platform=x64 /p:Configuration=FullRelease od-win32\winuae_msvc15\winuae_msvc.vcxproj
 
     - name: Upload winuae-gdb.exe
       uses: actions/upload-artifact@v4
