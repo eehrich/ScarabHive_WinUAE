@@ -5,6 +5,7 @@
 #include <thread>
 #include <vector>
 #include <array>
+#include <string>
 
 #include "options.h"
 #include "memory.h"
@@ -270,7 +271,10 @@ namespace barto_gdbserver {
 		const int one = 1;
 		const struct linger linger_1s = { 1, 1 };
 		constexpr auto name = _T("127.0.0.1");
-		constexpr auto port = _T("2345");
+		const int port_num = (currprefs.debugging_port > 0 && currprefs.debugging_port <= 65535)
+			? currprefs.debugging_port : 2345;
+		const std::wstring port_str = std::to_wstring(port_num);
+		const wchar_t* port = port_str.c_str();
 
 		err = GetAddrInfoW(name, port, nullptr, &socketinfo);
 		if(err < 0) {
@@ -303,7 +307,7 @@ namespace barto_gdbserver {
 			return false;
 		}
 
-		barto_log("GDBSERVER: listen() succeeded\n");
+		barto_log(_T("GDBSERVER: listen() succeeded on %s:%s\n"), name, port);
 		return true;
 	}
 
