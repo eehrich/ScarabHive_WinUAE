@@ -622,7 +622,7 @@ namespace barto_gdbserver {
 										}
 
 										profile_unwind.reset();
-										if(!profile_unwindname.empty()) {
+										if(!profile_unwindname.empty() && sizeText > 0 && sizeText <= 0x1000000) {
 											if(auto f = fopen(profile_unwindname.c_str(), "rb")) {
 												profile_unwind = std::make_unique<cpu_profiler_unwind[]>(sizeText >> 1);
 												fread(profile_unwind.get(), sizeof(cpu_profiler_unwind), sizeText >> 1, f);
@@ -636,6 +636,34 @@ namespace barto_gdbserver {
 											debugger_state = state::profile;
 											deactivate_debugger();
 											return; // response is sent when profile is finished (vsync)
+										}
+									} else if(cmd.substr(0, strlen("sections ")) == "sections ") {
+										// syntax: monitor sections <baseText_hex> <sizeText_hex> [<section_base_hex> ...]
+										auto s = cmd.substr(strlen("sections "));
+										std::vector<uint32_t> vals;
+										const char* p = s.c_str();
+										while(*p) {
+											while(*p == ' ') p++;
+											if(!*p) break;
+											char* end = nullptr;
+											uint32_t v = strtoul(p, &end, 16);
+											if(end == p) break;
+											vals.push_back(v);
+											p = end;
+										}
+										if(vals.size() >= 2 && vals[1] > 0 && vals[1] <= 0x1000000) {
+											baseText = vals[0];
+											sizeText = vals[1];
+											sections.clear();
+											if(vals.size() > 2)
+												sections.assign(vals.begin() + 2, vals.end());
+											else
+												sections.push_back(baseText);
+											barto_log("GDBSERVER: sections set: baseText=%x sizeText=%x count=%zu\n",
+												baseText, sizeText, sections.size());
+											response += "OK";
+										} else {
+											response += "E01";
 										}
 									} else if(cmd == "reset" && currprefs.debugging_trigger[0]) {
 										savestate_quick(0, 0); // restore state saved at process entry
